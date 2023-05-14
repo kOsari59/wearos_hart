@@ -1,8 +1,10 @@
 package com.example.myapplication;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -28,9 +30,25 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
 import com.example.myapplication.databinding.ActivityMainBinding;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.android.gms.wearable.CapabilityClient;
+import com.google.android.gms.wearable.CapabilityInfo;
+import com.google.android.gms.wearable.DataClient;
+import com.google.android.gms.wearable.DataEventBuffer;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.Wearable;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements MessageClient.OnMessageReceivedListener, DataClient.OnDataChangedListener, CapabilityClient.OnCapabilityChangedListener{
+    private static final String
+            VOICE_TRANSCRIPTION_CAPABILITY_NAME = "voice_transcription";
     private Chronometer chronometer;
     private boolean running;
     private long pauseOffset;
@@ -44,10 +62,13 @@ public class MainActivity extends Activity {
     TextView hh;
     TextView hh_2;
     TextView beat;
-    ConstraintLayout ll;
+    LinearLayout ll;
     int flag = 0;
     Button stop;
     Button start;
+
+    Button test;
+    private String transcriptionNodeId = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -56,20 +77,56 @@ public class MainActivity extends Activity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
+        test = (Button) findViewById(R.id.test);
+
+
+        test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try{
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                setupVoiceTranscription();
+                            } catch (Exception e) {
+                                Log.d("테스트 이것은 세팅 에러", e.toString());
+                            }
+                        }
+                    }).start();
+                    Log.d("테스트", "이건 성공");
+                    Log.d("테스트", transcriptionNodeId.toString());
+                    requestTranscription(hh.getText().toString().getBytes(StandardCharsets.UTF_8));
+                }catch (Exception e){
+                    Log.d("테스트 이것은 스레드 에러", e.toString());
+                }
+
+
+            }
+        });
+
+
+
         start = (Button) findViewById(R.id.start);
         stop = (Button) findViewById(R.id.stop);
         Button reset = (Button) findViewById(R.id.reset);
+
         beat = (TextView) findViewById(R.id.beat);
         hh = (TextView) findViewById(R.id.mtext);
         hh_2 = (TextView) findViewById(R.id.mtext_2);
-        ll=(ConstraintLayout) findViewById(R.id.ll);
+        ll=(LinearLayout) findViewById(R.id.ll);
         timeThread = new Thread(new timeThread_3()); //강제종료를 막기 위해 한번 초기화
+
 
         if (checkSelfPermission(Manifest.permission.BODY_SENSORS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.BODY_SENSORS}, 1);
         } else {
             Log.d("11", "ALREADY GRANTED");
         }
+
+
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         assert mSensorManager != null;
@@ -82,6 +139,12 @@ public class MainActivity extends Activity {
             Log.d("123123", "no TYPE_HEART_RATE supports");
 
         }
+
+
+
+
+
+
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,10 +159,13 @@ public class MainActivity extends Activity {
                 if(istt){
                     timeThread = new Thread(new timeThread_3());
                     timeThread.start();
+                    Log.d("123", "스레드 3 작동");
                     istt = false;
                 }else{
                     timeThread = new Thread(new timeThread_2());
                     timeThread.start();
+                    Log.d("123", "스레드 2 작동");
+
                     istt = true;
                 }
             }
@@ -129,6 +195,8 @@ public class MainActivity extends Activity {
                 //ll.setBackgroundResource(R.drawable.dark);
                 start.setVisibility(View.VISIBLE);
                 stop.setVisibility(View.GONE);
+                hh.setVisibility(View.VISIBLE);
+                hh_2.setVisibility(View.GONE);
                 flag = 0;
             }
         });
@@ -157,6 +225,41 @@ public class MainActivity extends Activity {
         }
     };
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        Wearable.getDataClient(this).addListener(this);
+        Wearable.getMessageClient(this).addListener(this);
+        Wearable.getCapabilityClient(this)
+                .addListener(this, Uri.parse("wear://"), CapabilityClient.FILTER_REACHABLE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Wearable.getDataClient(this).removeListener(this);
+        Wearable.getMessageClient(this).removeListener(this);
+        Wearable.getCapabilityClient(this).removeListener(this);
+    }
+
+
+    @Override
+    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
+        Log.d("테스트","메시지 체인지" + messageEvent.toString());
+        Log.d("테스트",new String(messageEvent.getData(), StandardCharsets.UTF_8) );
+    }
+
+    @Override
+    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
+        Log.d("테스트","데이터 체인지" + dataEventBuffer.toString());
+    }
+
+    @Override
+    public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
+        Log.d("테스트","케파블리티 체인지" + capabilityInfo.toString());
+
+    }
+
 
     public class timeThread_3 implements Runnable {
         boolean flags = true;
@@ -170,6 +273,8 @@ public class MainActivity extends Activity {
                     msg.arg1 = i++;
                     handler_3.sendMessage(msg);
                     if(i>18000){
+                        hh.setText("");
+                        hh.setText("00:03:00:00");
                         return;
                     }
                     try {
@@ -204,7 +309,7 @@ public class MainActivity extends Activity {
             //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
 
             @SuppressLint("DefaultLocale") String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
-            hh.setText(result);
+            hh_2.setText(result);
 
 
             if(aa==0){
@@ -230,8 +335,10 @@ public class MainActivity extends Activity {
                     Message msg = new Message();
                     msg.arg1 = i++;
                     handler_2.sendMessage(msg);
-                    if(i>=12000){
+                    if(i>12000){
                         Log.d("123", "성공");
+                        hh_2.setText("");
+                        hh_2.setText("00:02:00:00");
                         return;
                     }
 
@@ -242,8 +349,8 @@ public class MainActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                hh.setText("");
-                                hh.setText("00:02:00:00");
+                                hh_2.setText("");
+                                hh_2.setText("00:02:00:00");
                             }
                         });
                         return; // 인터럽트 받을 경우 return
@@ -261,9 +368,9 @@ public class MainActivity extends Activity {
                 int mHeartRate = Math.round(mHeartRateFloat);
                 beat.setText(Integer.toString(mHeartRate));
                 if(mHeartRate >= 195 && flag ==1){
-                    //ll.setBackgroundResource(R.drawable.green);
-                }else if(mHeartRate>0 && flag ==1){
-                    //.setBackgroundResource(R.drawable.red);
+                    ll.setBackgroundResource(R.drawable.reen);
+                }else if(mHeartRate>=0 && flag ==1){
+                    ll.setBackgroundResource(R.drawable.red);
                 }
             }
         }
@@ -281,4 +388,55 @@ public class MainActivity extends Activity {
         super.onDestroy();
         mSensorManager.unregisterListener(mheart);
     }
+
+    //통신용 코드
+
+    //메시지 전달 세팅
+    private void setupVoiceTranscription() throws ExecutionException, InterruptedException {
+        CapabilityInfo capabilityInfo =Tasks.await(
+                Wearable.getCapabilityClient(this).getCapability(
+                        VOICE_TRANSCRIPTION_CAPABILITY_NAME, CapabilityClient.FILTER_REACHABLE));
+        // capabilityInfo has the reachable nodes with the transcription capability
+
+        updateTranscriptionCapability(capabilityInfo);
+    }
+
+
+    private void updateTranscriptionCapability(CapabilityInfo capabilityInfo) {
+        Set<Node> connectedNodes = capabilityInfo.getNodes();
+
+        transcriptionNodeId = pickBestNodeId(connectedNodes);
+    }
+
+    private String pickBestNodeId(Set<Node> nodes) {
+        String bestNodeId = null;
+        // Find a nearby node or pick one arbitrarily.
+        for (Node node : nodes) {
+            if (node.isNearby()) {
+                return node.getId();
+            }
+            bestNodeId = node.getId();
+        }
+        return bestNodeId;
+    }
+
+    public static final String VOICE_TRANSCRIPTION_MESSAGE_PATH = "/message-item-received";
+
+    //메시지 전송
+    private void requestTranscription(byte[] voiceData) {
+        if (transcriptionNodeId != null) {
+            Task<Integer> sendTask =
+                    Wearable.getMessageClient(getApplicationContext()).sendMessage(
+                            transcriptionNodeId, VOICE_TRANSCRIPTION_MESSAGE_PATH, voiceData);
+            // You can add success and/or failure listeners,
+
+            // Or you can call Tasks.await() and catch ExecutionException
+            Log.d("테스트", "requestTranscription:"+voiceData);
+
+        } else {
+            Log.d("테스트____", "오류");
+            // Unable to retrieve node with transcription capability
+        }
+    }
+
 }
