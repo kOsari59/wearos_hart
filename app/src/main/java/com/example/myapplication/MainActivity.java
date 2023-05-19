@@ -62,6 +62,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     TextView hh;
     TextView hh_2;
     TextView beat;
+    TextView goal;
     LinearLayout ll;
     int flag = 0;
     Button stop;
@@ -69,6 +70,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
     Button test;
     private String transcriptionNodeId = null;
+    int age = 20;
+    int max = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -76,11 +79,10 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-
+        
+        //연동 테스트 코드
         test = (Button) findViewById(R.id.test);
-
-
+        
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,7 +110,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         });
 
 
-
+        //여기서 부터 진짜 코드
+        goal = (TextView) findViewById( R.id.gaol);
         start = (Button) findViewById(R.id.start);
         stop = (Button) findViewById(R.id.stop);
         Button reset = (Button) findViewById(R.id.reset);
@@ -126,7 +129,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             Log.d("11", "ALREADY GRANTED");
         }
 
-
+        max = age/2;
+        goal.setText(max);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         assert mSensorManager != null;
@@ -247,6 +251,9 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     public void onMessageReceived(@NonNull MessageEvent messageEvent) {
         Log.d("테스트","메시지 체인지" + messageEvent.toString());
         Log.d("테스트",new String(messageEvent.getData(), StandardCharsets.UTF_8) );
+        age = Integer.parseInt(new String(messageEvent.getData(), StandardCharsets.UTF_8));
+        max = age/2;
+        goal.setText(max);
     }
 
     @Override
@@ -367,7 +374,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                 float mHeartRateFloat = sensorEvent.values[0];
                 int mHeartRate = Math.round(mHeartRateFloat);
                 beat.setText(Integer.toString(mHeartRate));
-                if(mHeartRate >= 195 && flag ==1){
+                if(mHeartRate >= max && flag ==1){
                     ll.setBackgroundResource(R.drawable.reen);
                 }else if(mHeartRate>=0 && flag ==1){
                     ll.setBackgroundResource(R.drawable.red);

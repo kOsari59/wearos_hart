@@ -4,59 +4,79 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
     android:textAlignment="center"
-    >
+    tools:context=".MainActivity">
+
     <LinearLayout
+        android:id="@+id/ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:id="@+id/ll"
         android:background="@drawable/black"
-        >
-        <TextView
-            android:layout_width="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:textAlignment="center">
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/beat"
-            android:text="0"/>
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/gaol"
+                android:text="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/" />
+
+            <TextView
+                android:id="@+id/beat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0" />
+        </LinearLayout>
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/mtext"
-            android:visibility="visible"
-            android:text="00:03:00:00"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:03:00:00"
+            android:visibility="visible" />
+
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
             android:id="@+id/mtext_2"
-            android:visibility="gone"
-            android:text="00:02:00:00"/>
-        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/start"
-            android:text="시작"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/stop"
-            android:text="중지"
-            android:visibility="gone"/>
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/reset"
-            android:text="리셋"
-            />
+            android:text="00:02:00:00"
+            android:visibility="gone" />
 
         <Button
+            android:id="@+id/start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="시작" />
+
+        <Button
+            android:id="@+id/stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="중지"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="리셋" />
+
+        <Button
             android:id="@+id/test"
-            android:text="테스트버튼"
-            />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="테스트버튼" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
