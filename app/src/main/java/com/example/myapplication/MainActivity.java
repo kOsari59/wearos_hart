@@ -71,7 +71,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     Button test;
     private String transcriptionNodeId = null;
     int age = 20;
-    int max = 0;
+    int max = 220-age;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -129,7 +129,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             Log.d("11", "ALREADY GRANTED");
         }
 
-        max = age/2;
+        max = 220-age;
         goal.setText(max);
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -252,7 +252,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         Log.d("테스트","메시지 체인지" + messageEvent.toString());
         Log.d("테스트",new String(messageEvent.getData(), StandardCharsets.UTF_8) );
         age = Integer.parseInt(new String(messageEvent.getData(), StandardCharsets.UTF_8));
-        max = age/2;
+        max = 220-age;
         goal.setText(max);
     }
 
