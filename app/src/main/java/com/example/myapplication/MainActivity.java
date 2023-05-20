@@ -46,7 +46,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 
-public class MainActivity extends Activity implements MessageClient.OnMessageReceivedListener, DataClient.OnDataChangedListener, CapabilityClient.OnCapabilityChangedListener{
+public class MainActivity extends Activity implements MessageClient.OnMessageReceivedListener, DataClient.OnDataChangedListener, CapabilityClient.OnCapabilityChangedListener {
     private static final String
             VOICE_TRANSCRIPTION_CAPABILITY_NAME = "voice_transcription";
     private Chronometer chronometer;
@@ -71,7 +71,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     Button test;
     private String transcriptionNodeId = null;
     int age = 20;
-    int max = 220-age;
+    int max = 220 - age;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -79,15 +80,15 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-        
+//
         //연동 테스트 코드
         test = (Button) findViewById(R.id.test);
-        
+
         test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                try{
+                try {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -101,7 +102,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                     Log.d("테스트", "이건 성공");
                     Log.d("테스트", transcriptionNodeId.toString());
                     requestTranscription(hh.getText().toString().getBytes(StandardCharsets.UTF_8));
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("테스트 이것은 스레드 에러", e.toString());
                 }
 
@@ -111,7 +112,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
 
         //여기서 부터 진짜 코드
-        goal = (TextView) findViewById( R.id.gaol);
+        goal = (TextView) findViewById(R.id.gaol);
         start = (Button) findViewById(R.id.start);
         stop = (Button) findViewById(R.id.stop);
         Button reset = (Button) findViewById(R.id.reset);
@@ -119,7 +120,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         beat = (TextView) findViewById(R.id.beat);
         hh = (TextView) findViewById(R.id.mtext);
         hh_2 = (TextView) findViewById(R.id.mtext_2);
-        ll=(LinearLayout) findViewById(R.id.ll);
+        ll = (LinearLayout) findViewById(R.id.ll);
         timeThread = new Thread(new timeThread_3()); //강제종료를 막기 위해 한번 초기화
 
 
@@ -129,8 +130,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             Log.d("11", "ALREADY GRANTED");
         }
 
-        max = 220-age;
-        goal.setText(max);
+       max = 220-age;
+       goal.setText(String.valueOf(max));
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         assert mSensorManager != null;
@@ -145,10 +146,6 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         }
 
 
-
-
-
-
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -160,12 +157,12 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                 } else {
                     stop.setText("시작");
                 }
-                if(istt){
+                if (istt) {
                     timeThread = new Thread(new timeThread_3());
                     timeThread.start();
                     Log.d("123", "스레드 3 작동");
                     istt = false;
-                }else{
+                } else {
                     timeThread = new Thread(new timeThread_2());
                     timeThread.start();
                     Log.d("123", "스레드 2 작동");
@@ -211,8 +208,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     Handler handler_3 = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            int aa = 18000-msg.arg1;
-            int mSec = aa% 100;
+            int aa = 18000 - msg.arg1;
+            int mSec = aa % 100;
             int sec = (aa / 100) % 60;
             int min = (aa / 100) / 60;
             int hour = (aa / 100) / 360;
@@ -220,7 +217,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
             @SuppressLint("DefaultLocale") String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
             hh.setText(result);
-            if(aa==0){
+            if (aa == 0) {
                 hh_2.setVisibility(View.VISIBLE);
                 hh.setVisibility(View.GONE);
                 start.setVisibility(View.VISIBLE);
@@ -249,27 +246,28 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
     @Override
     public void onMessageReceived(@NonNull MessageEvent messageEvent) {
-        Log.d("테스트","메시지 체인지" + messageEvent.toString());
-        Log.d("테스트",new String(messageEvent.getData(), StandardCharsets.UTF_8) );
+        Log.d("테스트", "메시지 체인지" + messageEvent.toString());
+        Log.d("테스트", new String(messageEvent.getData(), StandardCharsets.UTF_8));
         age = Integer.parseInt(new String(messageEvent.getData(), StandardCharsets.UTF_8));
-        max = 220-age;
-        goal.setText(max);
+        max = 220 - age;
+        goal.setText(String.valueOf(max));
     }
 
     @Override
     public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
-        Log.d("테스트","데이터 체인지" + dataEventBuffer.toString());
+        Log.d("테스트", "데이터 체인지" + dataEventBuffer.toString());
     }
 
     @Override
     public void onCapabilityChanged(@NonNull CapabilityInfo capabilityInfo) {
-        Log.d("테스트","케파블리티 체인지" + capabilityInfo.toString());
+        Log.d("테스트", "케파블리티 체인지" + capabilityInfo.toString());
 
     }
 
 
     public class timeThread_3 implements Runnable {
         boolean flags = true;
+
         @Override
         public void run() {
             int i = 0;
@@ -279,7 +277,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                     Message msg = new Message();
                     msg.arg1 = i++;
                     handler_3.sendMessage(msg);
-                    if(i>18000){
+                    if (i > 18000) {
                         hh.setText("");
                         hh.setText("00:03:00:00");
                         return;
@@ -308,8 +306,8 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     Handler handler_2 = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
-            int aa = 12000-msg.arg1;
-            int mSec = aa% 100;
+            int aa = 12000 - msg.arg1;
+            int mSec = aa % 100;
             int sec = (aa / 100) % 60;
             int min = (aa / 100) / 60;
             int hour = (aa / 100) / 360;
@@ -319,7 +317,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             hh_2.setText(result);
 
 
-            if(aa==0){
+            if (aa == 0) {
                 hh_2.setVisibility(View.GONE);
                 hh.setVisibility(View.VISIBLE);
                 start.setVisibility(View.VISIBLE);
@@ -333,6 +331,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
     public class timeThread_2 implements Runnable {
         boolean flags = true;
+
         @Override
         public void run() {
             int i = 0;
@@ -342,7 +341,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                     Message msg = new Message();
                     msg.arg1 = i++;
                     handler_2.sendMessage(msg);
-                    if(i>12000){
+                    if (i > 12000) {
                         Log.d("123", "성공");
                         hh_2.setText("");
                         hh_2.setText("00:02:00:00");
@@ -366,17 +365,18 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             }
         }
     }
+
     public class HeartListener implements SensorEventListener {
 
         @Override
         public void onSensorChanged(SensorEvent sensorEvent) {
-            if(sensorEvent.sensor.getType()==Sensor.TYPE_HEART_RATE && sensorEvent.values.length>0 ) {
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_HEART_RATE && sensorEvent.values.length > 0) {
                 float mHeartRateFloat = sensorEvent.values[0];
                 int mHeartRate = Math.round(mHeartRateFloat);
                 beat.setText(Integer.toString(mHeartRate));
-                if(mHeartRate >= max && flag ==1){
+                if (mHeartRate >= max && flag == 1) {
                     ll.setBackgroundResource(R.drawable.reen);
-                }else if(mHeartRate>=0 && flag ==1){
+                } else if (mHeartRate >= 0 && flag == 1) {
                     ll.setBackgroundResource(R.drawable.red);
                 }
             }
@@ -400,7 +400,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
 
     //메시지 전달 세팅
     private void setupVoiceTranscription() throws ExecutionException, InterruptedException {
-        CapabilityInfo capabilityInfo =Tasks.await(
+        CapabilityInfo capabilityInfo = Tasks.await(
                 Wearable.getCapabilityClient(this).getCapability(
                         VOICE_TRANSCRIPTION_CAPABILITY_NAME, CapabilityClient.FILTER_REACHABLE));
         // capabilityInfo has the reachable nodes with the transcription capability
@@ -438,7 +438,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             // You can add success and/or failure listeners,
 
             // Or you can call Tasks.await() and catch ExecutionException
-            Log.d("테스트", "requestTranscription:"+voiceData);
+            Log.d("테스트", "requestTranscription:" + voiceData);
 
         } else {
             Log.d("테스트____", "오류");
