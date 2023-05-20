@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.Manifest;
@@ -72,6 +74,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     private String transcriptionNodeId = null;
     int age = 20;
     int max = 220 - age;
+    SQLiteDatabase db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,8 +133,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             Log.d("11", "ALREADY GRANTED");
         }
 
-       max = 220-age;
-       goal.setText(String.valueOf(max));
+
 
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         assert mSensorManager != null;
@@ -202,6 +204,27 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             }
         });
 
+
+
+        //db 생성
+        DBHelper helper;
+
+        helper = new DBHelper(MainActivity.this,"beat.db",null,1);
+        db = helper.getWritableDatabase();
+        helper.onCreate(db);
+
+        try{
+            //db 읽어오기
+            String sql = "select * from mytable where id='1'";
+            Cursor cursor = db.rawQuery(sql,null);
+            cursor.moveToNext();
+            age = cursor.getInt(1);
+            max = 220-age;
+            goal.setText(String.valueOf(max));
+        }catch (Exception e){
+            Log.d("테스트", e.toString());
+        }
+
     }
 
     @SuppressLint("HandlerLeak")
@@ -249,6 +272,10 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         Log.d("테스트", "메시지 체인지" + messageEvent.toString());
         Log.d("테스트", new String(messageEvent.getData(), StandardCharsets.UTF_8));
         age = Integer.parseInt(new String(messageEvent.getData(), StandardCharsets.UTF_8));
+        
+        //DB 업데이트
+        String sql = "update mytable set beat ="+age+" where id='1'";
+        db.execSQL(sql);
         max = 220 - age;
         goal.setText(String.valueOf(max));
     }
@@ -445,5 +472,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             // Unable to retrieve node with transcription capability
         }
     }
+
+
 
 }
