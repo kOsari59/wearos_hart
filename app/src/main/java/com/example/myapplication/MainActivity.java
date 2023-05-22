@@ -213,7 +213,6 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         db = helper.getWritableDatabase();
         helper.onCreate(db);
 
-        try{
             //db 읽어오기
             String sql = "select * from mytable where id='1'";
             Cursor cursor = db.rawQuery(sql,null);
@@ -221,9 +220,6 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
             age = cursor.getInt(1);
             max = 220-age;
             goal.setText(String.valueOf(max));
-        }catch (Exception e){
-            Log.d("테스트", e.toString());
-        }
 
     }
 
