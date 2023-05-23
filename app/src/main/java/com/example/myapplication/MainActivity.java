@@ -138,7 +138,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         assert mSensorManager != null;
         mHeartRateSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE);
-        mSensorManager.registerListener(mheart, mHeartRateSensor, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(mheart, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
 
         if (mSensorManager.getDefaultSensor(Sensor.TYPE_HEART_RATE) != null) {
             Log.d("123123", "TYPE_HEART_RATE supports");
@@ -195,7 +195,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                 isRunning = true;
                 istt = true;
                 hh.setText("00:03:00:00");
-                //ll.setBackgroundResource(R.drawable.dark);
+                ll.setBackgroundResource(R.drawable.black);
                 start.setVisibility(View.VISIBLE);
                 stop.setVisibility(View.GONE);
                 hh.setVisibility(View.VISIBLE);
@@ -248,6 +248,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
     @Override
     public void onResume() {
         super.onResume();
+        mSensorManager.registerListener(mheart, mHeartRateSensor, SensorManager.SENSOR_DELAY_NORMAL);
         Wearable.getDataClient(this).addListener(this);
         Wearable.getMessageClient(this).addListener(this);
         Wearable.getCapabilityClient(this)
@@ -399,7 +400,7 @@ public class MainActivity extends Activity implements MessageClient.OnMessageRec
                 beat.setText(Integer.toString(mHeartRate));
                 if (mHeartRate >= max && flag == 1) {
                     ll.setBackgroundResource(R.drawable.reen);
-                } else if (mHeartRate >= 0 && flag == 1) {
+                } else if (flag == 1) {
                     ll.setBackgroundResource(R.drawable.red);
                 }
             }
